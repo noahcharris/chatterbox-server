@@ -8,7 +8,7 @@
 var jankyDatabase = [];
 var fs = require('fs');
 var page;
-fs.readFile('./server/log', 'utf8', function (err, data) {
+fs.readFile('./log', 'utf8', function (err, data) {
   if (err) {
     return console.log(err);
   }
@@ -72,7 +72,7 @@ var handleRequest = function(request, response) {
       var message = JSON.parse(bodyData);
       message.createdAt = new Date();
       jankyDatabase.push(message);
-      fs.writeFile("./server/log", JSON.stringify(jankyDatabase), function(err) {
+      fs.writeFile("./log", JSON.stringify(jankyDatabase), function(err) {
         if(err) {
             console.log(err);
         } else {
