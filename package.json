@@ -4,5 +4,8 @@
   "main": "server/basic-server.js",
   "author": "Hack Reactor",
   "license": "Copyright 2013, Hack Reactor. All rights reserved.",
-  "dependencies": {}
+  "dependencies": {},
+  "engines": {
+    "node": "0.8.8"
+  }
 }

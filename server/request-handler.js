@@ -63,10 +63,8 @@ var handleRequest = function(request, response) {
   if (request.url === '/' || request.url.slice(0,8) === '/?userna') {
     statusCode = 200;
     bodyData = page;
-    response.end(page);
+    //response.end(page);
   }
-
-  console.log(request);
 
   request.on('end', function(){
     console.log('inside request.on');
