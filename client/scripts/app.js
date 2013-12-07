@@ -47,7 +47,7 @@ var getQueryVariable = function(variable){
 
   Chat.prototype.postMessage = function(sendMsg){
     $.ajax({
-      url: 'http://localhost:8080/1/classes/chatterbox',
+      url: 'http://localhost:8080/classes/chatterbox',
       type: 'POST',
       data: JSON.stringify(sendMsg),
       contentType: 'application/json',
@@ -62,7 +62,7 @@ var getQueryVariable = function(variable){
 
   Chat.prototype.getMessages = function(lastMsgTime,roomname){
     $.ajax({
-      url: 'http://localhost:8080/1/classes/chatterbox',
+      url: 'http://localhost:8080/classes/chatterbox',
       type: 'GET',
       success: function(messages){
         console.log(messages);

@@ -4,12 +4,30 @@
  * You'll have to figure out a way to export this function from
  * this file and include it in basic-server.js so that it actually works.
  * *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html. */
+
 var jankyDatabase = [];
+var fs = require('fs');
+var page;
+fs.readFile('./log', 'utf8', function (err, data) {
+  if (err) {
+    return console.log(err);
+  }
+  jankyDatabase = JSON.parse(data);
+});
+
+fs.readFile('./grandFile', 'utf8', function (err, data) {
+  if (err) {
+    return console.log(err);
+  }
+  page = data;
+});
 
 var handleRequest = function(request, response) {
   var statusCode = 200;
-  if (request.url !== '/classes/chatterbox'){
+  var bodyData = '';
+  if (request.url.slice(0,8) !== '/classes'){
     statusCode = 404;
+    bodyData = '';
   }
   /* the 'request' argument comes from nodes http module. It includes info about the
   request - such as what URL the browser is requesting. */
@@ -17,33 +35,58 @@ var handleRequest = function(request, response) {
   /* Documentation for both request and response can be found at
    * http://nodemanual.org/0.8.14/nodejs_ref_guide/http.html */
   console.log("Serving request type " + request.method + " for url " + request.url);
-  var bodyData = "";
   if (request.method === "GET"){
-    if(jankyDatabase.length < 100 && statusCode !== 404){
-      bodyData = JSON.stringify(jankyDatabase);
+    if (request.url.slice(0,19) === '/classes/chatterbox'){
+      if(jankyDatabase.length < 100 && statusCode !== 404){
+        bodyData = JSON.stringify(jankyDatabase);
+      }
+      else{
+        bodyData = JSON.stringify(jankyDatabase).slice(jankyDatabase.length-100);
+      }
+    }else {
+      var room = request.url.slice(9);
+      for (var i = 0 ; i < jankyDatabase.length ; i++){
+        if (jankyDatabase[i].room === room){
+          bodyData.push(jankyDatabase[i]);
+        }
+      }
+      bodyData = JSON.stringify(bodyData);
     }
-    else{
-      bodyData = JSON.stringify(jankyDatabase).slice(jankyDatabase.length-100);
-    }
-  }else if (request.method === "POST" && statusCode !== 404){
+  }if (request.method === "POST" && statusCode !== 404){
     statusCode = 201;
     request.on('data', function(chunk) {
       bodyData += chunk.toString();
     });
 
   }
+
+  if (request.url === '/' || request.url.slice(0,8) === '/?userna') {
+    statusCode = 200;
+    console.log('hi');
+    bodyData = page;
+  }
+
   request.on('end', function(){
     if (request.method === "POST"){
       var message = JSON.parse(bodyData);
       message.createdAt = new Date();
       jankyDatabase.push(message);
+      fs.writeFile("./log", JSON.stringify(jankyDatabase), function(err) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log("The file was saved!");
+        }
+      });
     }
-    console.log(jankyDatabase);
     /* Without this line, this server wouldn't work. See the note
      * below about CORS. */
     var headers = defaultCorsHeaders;
 
     headers['Content-Type'] = "text/plain";
+    if (request.url === '/' || request.url.slice(0,8) === '/?userna') {
+      headers['Content-Type'] = 'text/html';
+    }
 
     /* .writeHead() tells our server what HTTP status code to send back */
     response.writeHead(statusCode, headers);
